@@ -6,7 +6,7 @@ Version 1.0 | 19 October 2026
 
 | **Document Type**   | Acceptance Criteria                                   |
 | ------------------- | ----------------------------------------------------- |
-| **Based On**        | Initiation Meeting Requirements (Audio Analysis)      |
+| **Based On**        | Initiation Meeting Requirements     |
 | **Target Deadline** | 15 November 2026 (Training in November)               |
 | **Status**          | Draft – Awaiting final validation rules from business |
 
