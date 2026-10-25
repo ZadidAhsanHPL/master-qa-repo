@@ -2,243 +2,609 @@
 
 **Project: Forecast Upload**
 
-Version 1.0 | 19 October 2026
+Version 2.0 | Full Features, User Stories, Use Cases & AC | 25 October 2026
 
-| **Document Type**   | Acceptance Criteria                                   |
-| ------------------- | ----------------------------------------------------- |
-| **Based On**        | Initiation Meeting Requirements     |
-| **Target Deadline** | 15 November 2026 (Training in November)               |
-| **Status**          | Draft – Awaiting final validation rules from business |
+| **Document Type**   | Acceptance Criteria – Full Specification |
+| ------------------- | ---------------------------------------- |
+| **Based On**        | Initiation Meeting Requirements          |
+| **Target Deadline** | 15 November 2026                         |
+| **Status**          | Draft – Awaiting final validation rules  |
 
 **1\. Introduction**
 
-This document defines the Acceptance Criteria for the Forecast Upload application. A feature is considered "Done" only when all related criteria listed below are fully met and verified.
+This document provides the complete Acceptance Criteria for the Forecast Upload application. It covers every feature, user story (in Given-When-Then format), use case, and detailed acceptance criteria derived from the initiation meeting.
 
-The application allows users to upload product forecast Excel files, validates the data against defined business rules, and posts valid data to SAP via an API. Partial uploads are not allowed.
+A feature is considered "Done" only when all related user stories and acceptance criteria are fully met and verified.
 
-**2\. Authentication & Login**
+**2\. System Overview**
 
-**AC-2.1 Login Screen**
+Forecast Upload is a web application that allows ~20–25 users to upload product forecast Excel files. The system validates the file against business rules and, if valid, posts the data to SAP via API. Partial uploads are not allowed.
 
-• User can access a dedicated login page.
+• Primary users: Business users who prepare monthly/quarterly forecasts
 
-• User can successfully log in with valid credentials.
+• Key outcome: Eliminate manual Excel → email → SAP upload process
 
-• Invalid credentials display a clear, user-friendly error message.
+• Success metric: Users can self-upload validated forecasts by December 2026
 
-• After successful login, the user is redirected to the main upload screen.
+**3\. Actors**
 
-• Logout functionality is available and securely ends the session.
+• Uploader (Business User) – Uploads Excel, views data, fixes errors, submits
 
-**AC-2.2 Session Management**
+• System – Validates data, displays errors, calls SAP API, logs actions
 
-• Session expires after a defined period of inactivity.
+• SAP System – Receives validated forecast data via API
 
-• Unauthenticated users cannot access any protected pages or features.
+• Admin / Support (optional) – Views logs, supports users
 
-**3\. Excel Upload**
+**4\. Feature 1: Authentication & Session Management**
 
-**AC-3.1 Upload Interface**
+**Feature F1 – User Login & Session**
 
-• User can select a file or drag-and-drop an Excel file (.xlsx / .xls).
+Description: Secure access to the application for authorised users only.
 
-• System rejects non-Excel files with a clear error message.
+**User Story US-1.1 – Successful Login**
 
-• System rejects empty files or files exceeding the defined size limit.
+**Given:** the user is on the login page and has valid credentials
 
-• After a successful upload, the system parses the file and displays the data.
+**When:** the user enters username and password and clicks Login
 
-**AC-3.2 File Parsing**
+**Then:** the system authenticates the user and redirects to the main upload screen
 
-• System correctly reads the fixed set of columns (Material/Product Code + month columns).
+**Acceptance Criteria**
 
-• System preserves the original structure and order of the uploaded Excel.
+**AC-1.1.1** Login page is accessible without authentication.
 
-**4\. Data Preview & Editing**
+**AC-1.1.2** Valid credentials allow successful login.
 
-**AC-4.1 Data Visualization**
+**AC-1.1.3** After login, user is redirected to the Excel Upload screen.
 
-• After successful upload, the system displays the Excel data in a table.
+**AC-1.1.4** User's name or identity is visible after login.
 
-• The table uses the same structure and column order as the original Excel file.
+**User Story US-1.2 – Invalid Login**
 
-• All rows and columns are clearly visible and readable.
+**Given:** the user is on the login page
 
-**AC-4.2 Quantity Editing**
+**When:** the user enters invalid credentials and clicks Login
 
-• User can edit Quantity values directly in the preview table.
+**Then:** the system displays a clear error message and does not grant access
 
-• Other columns (Material, Month names, etc.) remain non-editable.
+**Acceptance Criteria**
 
-• Any changes made in the UI are reflected before final submission.
+**AC-1.2.1** Invalid credentials show a clear, non-technical error message.
 
-**5\. Validation Rules**
+**AC-1.2.2** No indication is given whether username or password was wrong (security).
 
-**AC-5.1 Structure Validation**
+**AC-1.2.3** User remains on the login page.
 
-• System validates that the Excel contains the exact expected number of columns.
+**User Story US-1.3 – Logout**
 
-• System validates that column headers match the expected names.
+**Given:** the user is logged in
 
-• Missing or extra columns cause the entire file to fail validation.
+**When:** the user clicks Logout
 
-**AC-5.2 Material / Product Code Validation**
+**Then:** the session is terminated and the user is redirected to the login page
 
-• Material/Product Code is mandatory for every row.
+**Acceptance Criteria**
 
-• Format rules (to be confirmed by business) are enforced.
+**AC-1.3.1** Logout ends the session immediately.
 
-**AC-5.3 Month Name Validation**
+**AC-1.3.2** After logout, protected pages are no longer accessible.
 
-• Month names must match exactly the expected short forms (e.g., "Jan", "Feb").
+**User Story US-1.4 – Session Timeout**
 
-• Full names ("January"), misspellings ("Jann"), or incorrect abbreviations are rejected.
+**Given:** the user is logged in and has been inactive beyond the session timeout period
 
-• Error message clearly indicates the row number and the incorrect month name.
+**When:** the user attempts any action
 
-**AC-5.4 Year / Month Combination Validation**
+**Then:** the system ends the session and redirects to the login page with a timeout message
 
-• System validates that the year-month combination is logical relative to the current date.
+**Acceptance Criteria**
 
-• Example: Uploading a forecast for January 2028 while the current year is 2026 is rejected.
+**AC-1.4.1** Session expires after a defined inactivity period.
 
-• Final detailed year rules will be provided by the business and must be implemented.
+**AC-1.4.2** User is informed that the session has expired.
 
-**AC-5.5 Quantity Validation**
+**Use Cases – Authentication**
 
-• Quantity must be an integer (whole number only).
+• UC-1: Successful login with valid credentials
 
-• Decimal or fractional values (e.g., 100.5) are rejected.
+• UC-2: Failed login with invalid credentials
 
-• Error message indicates the exact row number and the invalid quantity.
+• UC-3: Logout from any screen
 
-**AC-5.6 All-or-Nothing Rule**
+• UC-4: Automatic session expiry due to inactivity
 
-• If any validation error exists in the file (even in a single row), the entire file is rejected.
+• UC-5: Direct URL access to protected page while unauthenticated → redirect to login
 
-• No partial data is ever sent to SAP.
+**5\. Feature 2: Excel File Upload**
 
-• All errors are collected and displayed together in one view.
+**Feature F2 – Excel Upload**
 
-**AC-5.7 Error Display**
+Description: Users can upload an Excel file (.xlsx / .xls) containing forecast data.
 
-• System shows a clear, structured list of all validation errors.
+**User Story US-2.1 – Successful File Upload**
 
-• Each error includes: Row number + Column/Field + Specific error message.
+**Given:** the user is logged in and on the upload screen
 
-• Example format: "Row 23 – Month name is incorrect".
+**When:** the user selects or drags-and-drops a valid Excel file and uploads it
 
-• User can easily identify and fix the problems in the original Excel file.
+**Then:** the system accepts the file, parses it, and displays the data in a preview table
 
-**6\. Submit Process**
+**Acceptance Criteria**
 
-**AC-6.1 Submit Action**
+**AC-2.1.1** User can select a file via file browser or drag-and-drop.
 
-• A clear "Submit" button is available after the data is previewed.
+**AC-2.1.2** Only .xlsx and .xls files are accepted.
 
-• User must explicitly confirm before final submission.
+**AC-2.1.3** After upload, data is parsed and shown in a table matching Excel structure.
 
-• Submit button is disabled while the system is processing.
+**AC-2.1.4** Loading indicator is shown during file parsing.
 
-**AC-6.2 Validation on Submit**
+**User Story US-2.2 – Reject Invalid File Type**
 
-• On Submit, the system re-runs all validation rules on the current data (including any edited quantities).
+**Given:** the user is on the upload screen
 
-• Only fully valid data proceeds to the SAP API call.
+**When:** the user tries to upload a non-Excel file (e.g. .pdf, .csv, .docx)
 
-**7\. SAP Integration**
+**Then:** the system rejects the file and shows a clear error message
 
-**AC-7.1 API Call**
+**Acceptance Criteria**
 
-• When all validations pass, the system calls the provided SAP API.
+**AC-2.2.1** Non-Excel files are rejected immediately.
 
-• Correct and complete data is sent to the designated location in SAP.
+**AC-2.2.2** Error message clearly states that only Excel files are allowed.
 
-**AC-7.2 Success Handling**
+**User Story US-2.3 – Reject Empty or Oversized File**
 
-• On successful API response, the system displays a clear success confirmation.
+**Given:** the user is on the upload screen
 
-• User is informed that the forecast data has been successfully posted to SAP.
+**When:** the user uploads an empty file or a file exceeding the size limit
 
-**AC-7.3 Failure Handling**
+**Then:** the system rejects the file with an appropriate message
 
-• If the SAP API fails, the system shows a clear, actionable error message.
+**Acceptance Criteria**
 
-• The uploaded data remains available so the user can retry.
+**AC-2.3.1** Empty files are rejected.
 
-• The failure is logged with sufficient detail for technical investigation.
+**AC-2.3.2** Files exceeding the defined size limit are rejected.
 
-**AC-7.4 Double Submission Prevention**
+**AC-2.3.3** Clear error messages are shown for both cases.
 
-• After a successful post, the same data cannot be submitted again without a fresh upload.
+**Use Cases – Excel Upload**
 
-**8\. Success Report**
+• UC-6: Upload valid Excel file → data preview shown
 
-**AC-8.1 Confirmation Screen**
+• UC-7: Attempt to upload non-Excel file → rejected
 
-• After successful submission, a dedicated success screen/report is shown.
+• UC-8: Upload empty file → rejected
 
-• The report clearly states that the upload was successful and data has been posted to SAP.
+• UC-9: Upload oversized file → rejected
 
-• Basic information is displayed: upload date/time, number of rows, and user name.
+• UC-10: Upload Excel with wrong structure → proceeds to validation (errors shown later)
 
-**9\. Logging & Audit**
+**6\. Feature 3: Data Preview & Quantity Editing**
 
-**AC-9.1 Application Logging**
+**Feature F3 – Preview & Edit**
 
-• Every upload attempt is logged (both success and failure).
+Description: After upload, users can view the data and optionally edit Quantity values before submission.
 
-• Validation failures, API calls, and API responses are logged with sufficient context.
+**User Story US-3.1 – View Uploaded Data**
 
-**AC-9.2 Audit Trail**
+**Given:** the user has successfully uploaded a valid Excel file
 
-• Successful posts record: Who uploaded, when, file name, and number of rows.
+**When:** the system finishes parsing the file
 
-• Logs are accessible for support and troubleshooting purposes.
+**Then:** the data is displayed in a table with the same columns and order as the Excel file
 
-**10\. General / Non-Functional Criteria**
+**Acceptance Criteria**
 
-**AC-10.1 User Experience**
+**AC-3.1.1** Preview table shows all rows and columns from the Excel.
 
-• Loading indicators are shown during file parsing, validation, and API calls.
+**AC-3.1.2** Column order and headers match the uploaded file.
 
-• Error and success messages are clear and user-friendly.
+**AC-3.1.3** Material/Product Code and all month columns are visible.
 
-• The application works reliably on standard desktop browsers.
+**User Story US-3.2 – Edit Quantity**
 
-**AC-10.2 Security**
+**Given:** the uploaded data is displayed in the preview table
 
-• Only authenticated users can upload files.
+**When:** the user changes a Quantity value in an editable cell
 
-• No sensitive data is exposed in error messages or logs beyond what is necessary.
+**Then:** the new value is accepted in the UI and will be used during final validation and submission
 
-**AC-10.3 Performance**
+**Acceptance Criteria**
 
-• The system can handle Excel files containing at least 100–500 rows without significant delay.
+**AC-3.2.1** Quantity cells are editable.
 
-**AC-10.4 No Manual Entry**
+**AC-3.2.2** Material and Month Name columns are not editable.
 
-• There is no option for manual data entry. Only Excel upload is supported.
+**AC-3.2.3** Edited values are retained until submission or new upload.
 
-**11\. Out of Scope (Explicitly Confirmed)**
+**AC-3.2.4** User can edit multiple quantity values before submitting.
 
-• Viewing existing forecasts already stored in SAP.
+**Use Cases – Preview & Edit**
 
-• Packing / material availability / three-month rolling reports.
+• UC-11: View full uploaded data in table format
 
-• Partial upload of only valid rows.
+• UC-12: Edit one or more Quantity values
 
-• Manual data entry screens.
+• UC-13: Attempt to edit non-quantity fields → not allowed
 
-**12\. Notes**
+**7\. Feature 4: Validation Engine**
 
-• Final detailed validation rules (especially year logic and exact Material Code rules) will be provided by the business and must be incorporated before UAT.
+**Feature F4 – Business Validation Rules**
 
-• All acceptance criteria listed in this document must be met for a feature to be considered "Done".
+Description: System validates the entire file against all business rules. Any error causes full rejection (all-or-nothing).
 
-• Any change to these criteria requires formal agreement from the project stakeholders.
+**User Story US-4.1 – Structure Validation**
 
-**13\. Approval & Signatories**
+**Given:** an Excel file has been uploaded
+
+**When:** the system runs structure validation
+
+**Then:** the system verifies exact expected columns and headers; any mismatch is reported as an error
+
+**Acceptance Criteria**
+
+**AC-4.1.1** System checks for the exact expected number of columns.
+
+**AC-4.1.2** System validates column header names.
+
+**AC-4.1.3** Missing or extra columns cause validation failure.
+
+**User Story US-4.2 – Material / Product Code Validation**
+
+**Given:** an Excel file has been uploaded
+
+**When:** the system validates the Material/Product Code column
+
+**Then:** every row must have a valid Material/Product Code; missing or invalid codes are reported with row numbers
+
+**Acceptance Criteria**
+
+**AC-4.2.1** Material/Product Code is mandatory for every row.
+
+**AC-4.2.2** Format rules (to be confirmed) are enforced.
+
+**AC-4.2.3** Errors reference exact row numbers.
+
+**User Story US-4.3 – Month Name Validation**
+
+**Given:** an Excel file has been uploaded
+
+**When:** the system validates month name columns
+
+**Then:** only exact short forms (e.g. Jan, Feb) are accepted; any variation is reported as an error with row number
+
+**Acceptance Criteria**
+
+**AC-4.3.1** Month names must match exactly the expected short forms (Jan, Feb, Mar, etc.).
+
+**AC-4.3.2** Full names (January), misspellings (Jann), or wrong abbreviations are rejected.
+
+**AC-4.3.3** Error message includes row number and the incorrect value.
+
+**User Story US-4.4 – Year / Month Combination Validation**
+
+**Given:** an Excel file has been uploaded and contains year-month data
+
+**When:** the system validates year-month combinations against current date rules
+
+**Then:** illogical combinations (e.g. forecasting Jan 2028 while current year is 2026) are rejected with clear errors
+
+**Acceptance Criteria**
+
+**AC-4.4.1** Year-month combination must be logical relative to the current date.
+
+**AC-4.4.2** Final detailed rules will be provided by business and must be implemented.
+
+**AC-4.4.3** Errors clearly explain why the year-month is invalid.
+
+**User Story US-4.5 – Quantity Validation**
+
+**Given:** an Excel file has been uploaded (or quantities edited)
+
+**When:** the system validates Quantity values
+
+**Then:** only integer values are accepted; decimals or non-numeric values are rejected with row numbers
+
+**Acceptance Criteria**
+
+**AC-4.5.1** Quantity must be an integer (whole number).
+
+**AC-4.5.2** Decimal or fractional values (e.g. 100.5) are rejected.
+
+**AC-4.5.3** Error message shows exact row number and invalid value.
+
+**User Story US-4.6 – All-or-Nothing Validation**
+
+**Given:** validation has been run on the uploaded (and possibly edited) data
+
+**When:** one or more validation errors exist
+
+**Then:** the entire file is rejected; no data is sent to SAP; all errors are displayed together
+
+**Acceptance Criteria**
+
+**AC-4.6.1** If any error exists (even in one row), the whole file is rejected.
+
+**AC-4.6.2** No partial data is ever sent to SAP.
+
+**AC-4.6.3** All errors are collected and shown in a single list.
+
+**AC-4.6.4** Each error includes: Row number + Field + Specific message.
+
+**User Story US-4.7 – Display Validation Errors**
+
+**Given:** validation has failed
+
+**When:** the system presents the results to the user
+
+**Then:** a clear, structured list of all errors is shown so the user can fix the Excel and re-upload
+
+**Acceptance Criteria**
+
+**AC-4.7.1** Errors are displayed in a readable list or table.
+
+**AC-4.7.2** Format example: "Row 23 – Month name is incorrect".
+
+**AC-4.7.3** User can easily identify problems and correct the source Excel.
+
+**Use Cases – Validation**
+
+• UC-14: Valid file with correct structure, months, years, and integer quantities → passes
+
+• UC-15: File with misspelled month name → rejected with row-level error
+
+• UC-16: File with decimal quantity → rejected with row-level error
+
+• UC-17: File with future year beyond allowed range → rejected
+
+• UC-18: File with missing Material Code → rejected
+
+• UC-19: File with multiple different errors → all errors listed, nothing posted
+
+• UC-20: User edits quantity to invalid value then submits → validation catches it
+
+**8\. Feature 5: Submit & SAP Integration**
+
+**Feature F5 – Submit to SAP**
+
+Description: After successful validation, user submits data; system calls SAP API.
+
+**User Story US-5.1 – Successful Submit**
+
+**Given:** the uploaded data has passed all validations
+
+**When:** the user clicks Submit and confirms
+
+**Then:** the system calls the SAP API with the clean data and shows a success confirmation
+
+**Acceptance Criteria**
+
+**AC-5.1.1** Submit button is available only after data is previewed.
+
+**AC-5.1.2** User must confirm before final submission.
+
+**AC-5.1.3** On success, a clear success message/report is shown.
+
+**AC-5.1.4** Success report includes date/time, number of rows, and user.
+
+**User Story US-5.2 – Submit with Validation Errors**
+
+**Given:** the data contains one or more validation errors
+
+**When:** the user clicks Submit
+
+**Then:** the system blocks submission, shows all errors, and does not call the SAP API
+
+**Acceptance Criteria**
+
+**AC-5.2.1** Submit is blocked when validation fails.
+
+**AC-5.2.2** All current errors are displayed.
+
+**AC-5.2.3** No API call is made to SAP.
+
+**User Story US-5.3 – SAP API Failure**
+
+**Given:** validation has passed and the system calls the SAP API
+
+**When:** the SAP API returns an error or is unavailable
+
+**Then:** the system shows a clear failure message, keeps the data available for retry, and logs the error
+
+**Acceptance Criteria**
+
+**AC-5.3.1** API failure shows a user-friendly error message.
+
+**AC-5.3.2** Uploaded data remains available so the user can retry.
+
+**AC-5.3.3** Failure is logged with sufficient technical detail.
+
+**User Story US-5.4 – Prevent Double Submission**
+
+**Given:** a successful submission has just been completed
+
+**When:** the user attempts to submit the same data again
+
+**Then:** the system prevents duplicate submission
+
+**Acceptance Criteria**
+
+**AC-5.4.1** After successful post, the same data cannot be re-submitted without a new upload.
+
+**AC-5.4.2** Submit button is disabled or protected after success.
+
+**Use Cases – Submit & SAP**
+
+• UC-21: Valid data → Submit → SAP API success → success report
+
+• UC-22: Invalid data → Submit → blocked with errors
+
+• UC-23: Valid data → SAP API fails → error shown, data retained for retry
+
+• UC-24: Attempt to re-submit already successfully posted data → prevented
+
+**9\. Feature 6: Success Report**
+
+**Feature F6 – Post-Upload Confirmation**
+
+Description: After successful SAP posting, user sees a clear confirmation.
+
+**User Story US-6.1 – View Success Report**
+
+**Given:** the SAP API call has succeeded
+
+**When:** the system navigates to the success screen
+
+**Then:** a confirmation report is displayed showing that the forecast was successfully posted
+
+**Acceptance Criteria**
+
+**AC-6.1.1** Success screen clearly states that data has been posted to SAP.
+
+**AC-6.1.2** Report shows upload date/time, number of rows, and user name.
+
+**AC-6.1.3** User can start a new upload from the success screen.
+
+**Use Cases – Success Report**
+
+• UC-25: Successful post → success report displayed
+
+• UC-26: User starts new upload after viewing success report
+
+**10\. Feature 7: Logging & Audit Trail**
+
+**Feature F7 – Logging**
+
+Description: All important actions are logged for support and audit purposes.
+
+**User Story US-7.1 – Log Upload Attempts**
+
+**Given:** a user uploads a file (success or failure)
+
+**When:** the system processes the upload
+
+**Then:** the attempt is logged with timestamp, user, file name, and result
+
+**Acceptance Criteria**
+
+**AC-7.1.1** Every upload attempt is logged.
+
+**AC-7.1.2** Validation failures are logged with error summary.
+
+**AC-7.1.3** Successful posts record who, when, file name, and row count.
+
+**AC-7.1.4** SAP API calls and responses are logged.
+
+**Use Cases – Logging**
+
+• UC-27: Successful upload and post → full audit record created
+
+• UC-28: Failed validation → logged with error details
+
+• UC-29: SAP API failure → logged for technical investigation
+
+**11\. Feature 8: Non-Functional Requirements**
+
+**Feature F8 – Quality Attributes**
+
+**User Story US-8.1 – Usability & Feedback**
+
+**Given:** the user is performing any operation (upload, validate, submit)
+
+**When:** the system is processing
+
+**Then:** appropriate loading indicators and clear success/error messages are shown
+
+**Acceptance Criteria**
+
+**AC-8.1.1** Loading indicators appear during parse, validation, and API calls.
+
+**AC-8.1.2** All messages are clear and user-friendly.
+
+**AC-8.1.3** Application works on standard desktop browsers.
+
+**User Story US-8.2 – Performance**
+
+**Given:** a user uploads an Excel file containing 100–500 rows
+
+**When:** the system processes the file
+
+**Then:** the operation completes without significant delay
+
+**Acceptance Criteria**
+
+**AC-8.2.1** System handles files with at least 100–500 rows acceptably.
+
+**User Story US-8.3 – Security**
+
+**Given:** an unauthenticated user tries to access any protected function
+
+**When:** the request is made
+
+**Then:** access is denied and the user is redirected to login
+
+**Acceptance Criteria**
+
+**AC-8.3.1** Only authenticated users can upload files.
+
+**AC-8.3.2** No sensitive data is exposed in error messages beyond necessity.
+
+**User Story US-8.4 – No Manual Entry**
+
+**Given:** the user is on the application
+
+**When:** the user looks for a way to enter data manually
+
+**Then:** no manual data entry option exists; only Excel upload is available
+
+**Acceptance Criteria**
+
+**AC-8.4.1** There is no manual data entry screen or form.
+
+**AC-8.4.2** Only Excel file upload is supported.
+
+**12\. Out of Scope (Explicitly Confirmed)**
+
+• Viewing existing forecasts already stored in SAP
+
+• Packing / material availability / three-month rolling reports
+
+• Partial upload of only valid rows
+
+• Manual data entry screens
+
+• Admin UI for managing validation rules (future consideration)
+
+**13\. Summary of Features & User Stories**
+
+F1 Authentication: US-1.1 to US-1.4
+
+F2 Excel Upload: US-2.1 to US-2.3
+
+F3 Preview & Edit: US-3.1 to US-3.2
+
+F4 Validation Engine: US-4.1 to US-4.7
+
+F5 Submit & SAP: US-5.1 to US-5.4
+
+F6 Success Report: US-6.1
+
+F7 Logging & Audit: US-7.1
+
+F8 Non-Functional: US-8.1 to US-8.4
+
+**14\. Notes**
+
+• Final detailed validation rules (especially year logic and Material Code format) will be provided by the business and must be incorporated before UAT.
+
+• All acceptance criteria must be met for a feature to be considered "Done".
+
+• Any change to these criteria requires formal agreement from stakeholders.
+
+**15\. Approval & Signatories**
 
 By signing below, the undersigned confirm that they have reviewed and agree with the Acceptance Criteria defined in this document.
 
