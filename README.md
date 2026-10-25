@@ -16,7 +16,7 @@ Welcome to the central **QA Standard Templates Repository**. This repository ser
 ## 📁 Repository Structure
 
 ```text
-qa-standard-templates/
+master-qa-repo/
 │
 ├── 01-Requirements-&-Design/
 │   ├── acceptance-criteria-template.md      # Gherkin-style Acceptance Criteria template
